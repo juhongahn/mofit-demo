@@ -5,7 +5,9 @@
 // 소켓 연결
 const socket = io();
 
+const timeCounter = document.querySelector("#timerBox");
 const myFace = document.querySelector("#myFace");
+const readyBtn = document.querySelector("#readyBtn");
 const muteBtn = document.querySelector("#mute");
 const muteIcon = muteBtn.querySelector(".muteIcon");
 const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
@@ -16,6 +18,8 @@ const camerasSelect = document.querySelector("#cameras");
 
 const call = document.querySelector("#call");
 const welcome = document.querySelector("#welcome");
+
+const countText = document.querySelector("pushCount");
 
 const HIDDEN_CN = "hidden";
 
@@ -32,9 +36,31 @@ let roomName = "";
 let nickname = "";
 let peopleInRoom = 1;
 
+let isStartGame = false;
+let timeCount = document.querySelector("time");
+let pushupCount = 0;
+
 let pcObj = {
   // remoteSocketId: pc
 };
+
+var time = 60; //기준시간 작성
+var min = ""; //분
+var sec = ""; //초
+//setInterval(함수, 시간) : 주기적인 실행
+var x = setInterval(function() {
+	//parseInt() : 정수를 반환
+	min = parseInt(time/60); //몫을 계산
+	sec = time%60; //나머지를 계산
+	document.getElementById("time").innerHTML = min + "분" + sec + "초";
+	time--;
+		//타임아웃 시
+	if (time < 0) {
+		clearInterval(x); //setInterval() 실행을 끝냄
+		document.getElementById("time").innerHTML = "GAME END";
+    alert("GAME END");
+	}
+}, 1000);
 
 async function getCameras() {
   try {
@@ -96,12 +122,28 @@ async function getMedia(deviceId) {
   } catch (error) {
     console.log(error);
   }
-}
+}nicknameContainer
 
 async function loop(timestamp) {
   //webcam.update(); // update the webcam frame
   await predict();
   window.requestAnimationFrame(loop);
+}
+
+function handleReadyClick(event) {
+  count = 0;
+  readyBtn.hidden = true;
+  timeCounter.hidden = false;
+  time = 30;
+}
+
+function handleCount() {
+  const nicknameContainer = document.querySelector("#userNickname");
+  nicknameContainer.innerText = nickname + ' ' + String(count);
+  
+  message = count;
+  socket.emit("chat", `${nickname}: ${message}`, roomName);
+  writeChat(`You: ${message}`, MYCHAT_CN);
 }
 
 function handleMuteClick() {
@@ -152,6 +194,7 @@ async function handleCameraChange() {
   }
 }
 
+readyBtn.addEventListener("click", handleReadyClick);
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
 camerasSelect.addEventListener("input", handleCameraChange);
@@ -184,6 +227,7 @@ const welcomeForm = welcome.querySelector("form");
 
 async function initCall() {
   welcome.hidden = true;
+  timeCounter.hidden = true;
   call.classList.remove(HIDDEN_CN);
   await getMedia();
 }
@@ -468,7 +512,8 @@ async function loop(timestamp) {
   window.requestAnimationFrame(loop);
 }
 
-
+var count = 0;
+var curStatus = "stand";
 async function predict() {
   // Prediction #1: run input through posenet
   // estimatePose can take in an image, video or canvas html element
@@ -476,14 +521,14 @@ async function predict() {
   // Prediction 2: run input through teachable machine classification model
   const prediction = await model.predict(posenetOutput);
   if (prediction[0].probability.toFixed(2) >= 0.85) {
-    // if (status == "Squat") {
-    //   count++;
-    //   document.getElementById("counter").innerHTML = count
-    // }
-    // status = "Stand";
-    console.log("stand!");
-  } else if (prediction[1].probability.toFixed(2) <= 0.2) {
-    console.log("squat!");
+    if (curStatus == "Squat") {
+      count++;
+      handleCount();
+      // document.getElementById("counter").innerHTML = count;
+    }
+    curStatus = "Stand";
+  } else if (prediction[1].probability.toFixed(2) >= 0.9) {
+    curStatus = "Squat";
   }
 
   // for (let i = 0; i < maxPredictions; i++) {
@@ -494,6 +539,7 @@ async function predict() {
 
   // finally draw the poses
   // drawPose(pose);
+  // console.log(count);
 }
 
 

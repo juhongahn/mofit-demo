@@ -18,18 +18,26 @@ html(lang="en")
                     input#roomName(type="text", required, placeholder="Room Name")
                     input#nickname(type="text", required, placeholder="Your Nickname")
                     button Enter Room
-
+            
             div#call(class="call")
                 div#streamBox
                     div#streams
+                        div#time
+                            p#timerBox
+                                label(for=timer) 남은 시간 :
+                                input#timer(type="text" value="" readonly)
                         div#myStream(class="people1")
                             video#myFace(autoplay, playsinline, width="400", height="1200")
                             h3#userNickname  
+                            h3#pushCount
+                        button#readyBtn READY
+                        
                     div#controlers
                         div#controlers__column
                             select#cameras
                         div#controlers__column
                             div#buttons
+                                
                                 button#mute
                                     i(class="fas fa-microphone fa-2x unMuteIcon")
                                     i(class="fas fa-microphone-slash fa-2x muteIcon")

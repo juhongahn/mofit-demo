@@ -35,8 +35,7 @@ unCameraIcon.classList.add(HIDDEN_CN);
 let roomName = "";
 let nickname = "";
 let peopleInRoom = 1;
-
-let isStartGame = false;
+let allReady = false;
 let timeCount = document.querySelector("time");
 let pushupCount = 0;
 
@@ -44,23 +43,43 @@ let pcObj = {
   // remoteSocketId: pc
 };
 
-var time = 60; //기준시간 작성
-var min = ""; //분
-var sec = ""; //초
-//setInterval(함수, 시간) : 주기적인 실행
-var x = setInterval(function() {
-	//parseInt() : 정수를 반환
-	min = parseInt(time/60); //몫을 계산
-	sec = time%60; //나머지를 계산
-	document.getElementById("time").innerHTML = min + "분" + sec + "초";
-	time--;
-		//타임아웃 시
-	if (time < 0) {
-		clearInterval(x); //setInterval() 실행을 끝냄
-		document.getElementById("time").innerHTML = "GAME END";
-    alert("GAME END");
-	}
-}, 1000);
+function startTimer() {
+  var time = 60; //기준시간 작성
+  var min = ""; //분
+  var sec = ""; //초
+  //setInterval(함수, 시간) : 주기적인 실행
+  const timerBox = document.getElementById("timerBox");
+  const timer = timerBox.querySelector("p");
+  var x = setInterval(function () {
+    //parseInt() : 정수를 반환
+    min = parseInt(time / 60); //몫을 계산
+    sec = time % 60; //나머지를 계산
+    time--;
+    timer.innerHTML = `${min}:${sec}`;
+    //타임아웃 시
+    if (time < 0) {
+      clearInterval(x); //setInterval() 실행을 끝냄
+      //document.getElementById("time").innerHTML = "GAME END";
+      alert("GAME END");
+      handleGameEnd();
+    }
+  }, 1000);
+}
+
+function handleGameEnd() {
+
+}
+
+async function poseDetect() {
+  const URL = "/public/my_model/";
+  const modelURL = URL + "model.json";
+  const metadataURL = URL + "metadata.json";
+
+  // 모델 초기화
+  model = await tmPose.load(modelURL, metadataURL);
+  maxPredictions = model.getTotalClasses();
+  window.requestAnimationFrame(loop);
+}
 
 async function getCameras() {
   try {
@@ -83,11 +102,10 @@ async function getCameras() {
   }
 }
 
-async function getMedia(deviceId) {
-  const URL = "/public/my_model/";
 
-  const modelURL = URL + "model.json";
-  const metadataURL = URL + "metadata.json";
+
+async function getMedia(deviceId) {
+
   const initialConstraints = {
     audio: true,
     video: { facingMode: "user" },
@@ -106,11 +124,6 @@ async function getMedia(deviceId) {
     myFace.srcObject = myStream;  // 스트림을 꽂는 순간 video 태그에 연결들어옴.
     myFace.muted = true;
 
-    // 모델 초기화
-    model = await tmPose.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
-    window.requestAnimationFrame(loop);
-
     if (!deviceId) {
       // mute default
       myStream //
@@ -122,7 +135,7 @@ async function getMedia(deviceId) {
   } catch (error) {
     console.log(error);
   }
-}nicknameContainer
+}
 
 async function loop(timestamp) {
   //webcam.update(); // update the webcam frame
@@ -131,16 +144,37 @@ async function loop(timestamp) {
 }
 
 function handleReadyClick(event) {
-  count = 0;
-  readyBtn.hidden = true;
-  timeCounter.hidden = false;
-  time = 30;
+
+  if (readyBtn.innerText == "준비" && readyBtn.style.color == "white") {
+    alert("준비");
+    readyBtn.style.color = "gray";
+    socket.emit("ready", roomName, nickname);
+
+  } else if (readyBtn.innerText == "준비" && readyBtn.style.color == "gray") {
+    alert("준비 해제");
+    readyBtn.style.color = "white";
+    socket.emit("un_ready", roomName, nickname);
+  } else if (readyBtn.innerText == "시작" && !readyBtn.disabled) {
+    // 게임 스타트.
+    socket.emit("game_start", roomName);
+  }
+};
+
+socket.on("game_start", () => {
+  alert("게임 시작!")
+  console.log("게임 시작!")
+  startTimer();
+  poseDetect();
+})
+
+function handleGameStart() {
+
 }
 
 function handleCount() {
   const nicknameContainer = document.querySelector("#userNickname");
   nicknameContainer.innerText = nickname + ' ' + String(count);
-  
+
   message = count;
   socket.emit("chat", `${nickname}: ${message}`, roomName);
   writeChat(`You: ${message}`, MYCHAT_CN);
@@ -225,9 +259,10 @@ call.classList.add(HIDDEN_CN);
 
 const welcomeForm = welcome.querySelector("form");
 
+
+
 async function initCall() {
   welcome.hidden = true;
-  timeCounter.hidden = true;
   call.classList.remove(HIDDEN_CN);
   await getMedia();
 }
@@ -248,8 +283,12 @@ async function handleWelcomeSubmit(event) {
   welcomeNickname.value = "";
   nicknameContainer.innerText = nickname;
 
+
   // 서버에 join_room 이벤트로 roomName, nickname
   socket.emit("join_room", roomName, nickname);
+  readyBtn.innerHTML = "시작";
+  readyBtn.disabled = true;
+  readyBtn.style.color = "gray";
 }
 
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
@@ -371,14 +410,13 @@ socket.on("reject_join", () => {
   nickname = "";
 });
 
+// 방 입장. 
 socket.on("accept_join", async (userObjArr) => {
   await initCall();
-
   const length = userObjArr.length;
   if (length === 1) {
     return;
   }
-
   writeChat("Notice!", NOTICE_CN);
   for (let i = 0; i < length - 1; ++i) {
     try {
@@ -397,6 +435,19 @@ socket.on("accept_join", async (userObjArr) => {
   writeChat("is in the room.", NOTICE_CN);
 });
 
+socket.on("all_ready", () => {
+  alert("모두 준비완료")
+  ableReadyButton();
+  readyBtn.disabled = false;
+
+})
+
+socket.on("not_all_ready", () => {
+  alert("모두 준비완료")
+  unableReadyButton();
+  readyBtn.disabled = true;
+})
+
 socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
   try {
     const newPC = createConnection(remoteSocketId, remoteNickname);
@@ -412,6 +463,10 @@ socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
 
 socket.on("answer", async (answer, remoteSocketId) => {
   await pcObj[remoteSocketId].setRemoteDescription(answer);
+  readyBtn.innerHTML = "준비";
+  readyBtn.style.color = "white"
+  readyBtn.disabled = false;
+  readyBtn.setAttribute("class", "ableBtn");
 });
 
 socket.on("ice", async (ice, remoteSocketId) => {
@@ -484,7 +539,7 @@ function paintPeerFace(peerStream, id, remoteNickname) {
   const video = document.createElement("video");
   video.autoplay = true;
   video.playsInline = true;
-  video.width = "400";
+  video.width = "300";
   video.height = "800";
   video.srcObject = peerStream;
   const nicknameContainer = document.createElement("h3");
@@ -508,12 +563,13 @@ function sortStreams() {
 
 async function loop(timestamp) {
   //webcam.update(); // update the webcam frame
-  await predict();
-  window.requestAnimationFrame(loop);
+  //await predict();
+  //window.requestAnimationFrame(loop);
 }
 
 var count = 0;
 var curStatus = "stand";
+
 async function predict() {
   // Prediction #1: run input through posenet
   // estimatePose can take in an image, video or canvas html element
@@ -542,6 +598,15 @@ async function predict() {
   // console.log(count);
 }
 
+function ableReadyButton() {
+  readyBtn.style.color = "white";
+  readyBtn.classList.add('ableBtn');
+}
+
+function unableReadyButton() {
+  readyBtn.style.color = "gray";
+  readyBtn.classList.remove("ableBtn");
+}
 
 /*
 function handleConnectionStateChange(event) {

@@ -145,8 +145,10 @@ main {
   border-radius: 10px;
 
   transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-  -moz-transform: rotateY(180deg); /* Firefox */
+  -webkit-transform: rotateY(180deg);
+  /* Safari and Chrome */
+  -moz-transform: rotateY(180deg);
+  /* Firefox */
 }
 
 /* row 1 */
@@ -158,8 +160,9 @@ main {
 /* row 1 */
 #streamBox #streams .people2 {
   width: 47%;
-  height: 47%;
+  height: 65%;
 }
+
 
 /* row 2 */
 #streamBox #streams .people3,
@@ -206,12 +209,15 @@ main {
   display: flex;
   align-items: center;
 }
+
 #streamBox #controlers #controlers__column:first-child {
   padding-left: 20px;
 }
+
 #streamBox #controlers #controlers__column:nth-child(2) {
   justify-content: center;
 }
+
 #streamBox #controlers #controlers__column:last-child {
   justify-content: flex-end;
   padding-right: 20px;
@@ -237,12 +243,35 @@ main {
   transition: all 0.2s ease-in-out;
 }
 
-#streamBox #controlers #buttons button:hover {
+#streamBox #controlers #buttons .ableBtn:hover {
   background-color: #c8cfdf;
+}
+
+.ableReadyBtn {
+  color: white;
+}
+
+#timerBox {
+  width: 100%;
+  margin: 0 auto;
+}
+
+#timer {
+  margin-top: 20px;
+  text-align: center;
+  color: white;
+  font-size: 18px;
 }
 
 #streamBox #controlers #buttons button:first-child {
   margin-right: 10px;
+}
+
+#streamBox #controlers #buttons button:last-child {
+  border: white;
+  font-size: 18px;
+  margin-left: 10px;
+  padding-top: 10px;
 }
 
 #streamBox #controlers #buttons .unMuteIcon {
@@ -255,6 +284,11 @@ main {
 
 #streamBox #controlers #buttons .cameraIcon {
   color: var(--green-icon-color);
+}
+
+#streamBox #controlers #buttons #readyBtn {
+  padding-bottom: 10px;
+  color: white;
 }
 
 #streamBox #controlers #buttons .unCameraIcon {

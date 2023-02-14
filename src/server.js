@@ -3,7 +3,7 @@ import express from "express";
 import SocketIO from "socket.io";
 import http from "http";
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
@@ -44,7 +44,7 @@ wsServer.on("connection", (socket) => {
   socket.on("join_room", (roomName, nickname) => {
     myRoomName = roomName;
     myNickname = nickname;
-
+    var isHost = false
     let isRoomExist = false;
     let targetRoomObj = null;
 
@@ -70,6 +70,7 @@ wsServer.on("connection", (socket) => {
         currentNum: 0,
         users: [],
       };
+      isHost = true;
       roomObjArr.push(targetRoomObj);
     }
 
@@ -77,12 +78,70 @@ wsServer.on("connection", (socket) => {
     targetRoomObj.users.push({
       socketId: socket.id,
       nickname,
+      isReady: false,
+      isHost: isHost,
     });
     ++targetRoomObj.currentNum;
 
     socket.join(roomName);
     socket.emit("accept_join", targetRoomObj.users);
   });
+
+  socket.on("ready", (roomName, nickname) => {
+    var curRoom = null;
+    var all_ready = true;
+    let host, hostSocketId;
+    for (let i = 0; i < roomObjArr.length; ++i) {
+      if (roomObjArr[i].roomName === roomName) {
+        curRoom = roomObjArr[i];
+        break;
+      }
+    }
+    curRoom.users.forEach((user) => {
+      if (user.nickname === nickname) {
+        user.isReady = true;
+        console.log(`${user.nickname}: is ready`)
+      }
+      if (!user.isReady && !user.isHost) all_ready = false;
+      if (user.isHost) {
+        host = user;
+        hostSocketId = user.socketId
+      }
+    })
+
+    if (all_ready) {
+      socket.to(hostSocketId).emit("all_ready");
+    }
+  });
+
+  socket.on("un_ready", (roomName, nickname) => {
+    var curRoom = null;
+    var hostSocketId;
+    for (let i = 0; i < roomObjArr.length; ++i) {
+      if (roomObjArr[i].roomName === roomName) {
+        curRoom = roomObjArr[i];
+        break;
+      }
+    }
+    curRoom.users.forEach((user) => {
+      if (user.nickname === nickname) {
+        user.isReady = false;
+        console.log(`${user.nickname}: is unready`)
+      }
+    })
+
+    curRoom.users.forEach((user) => {
+
+      if (user.isHost) {
+        hostSocketId = user.socketId
+      }
+    })
+    socket.to(hostSocketId).emit("not_all_ready");
+  });
+
+  socket.on("game_start", (roomName) => {
+    socket.emit("game_start");
+  })
 
   socket.on("offer", (offer, remoteSocketId, localNickname) => {
     socket.to(remoteSocketId).emit("offer", offer, socket.id, localNickname);

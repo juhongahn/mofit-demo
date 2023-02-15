@@ -517,11 +517,13 @@ socket.on("leave_room", (leavedSocketId, nickname) => {
 
 socket.on("winner", () => {
   var audio = new Audio('/public/my_model/winner.mp3');
+  console.log("winner")
   audio.play();
 })
 
 socket.on("loser", () => {
   var audio = new Audio('/public/my_model/loser.mp3');
+  console.log("loser")
   audio.play();
 })
 

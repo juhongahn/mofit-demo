@@ -621,7 +621,7 @@ async function predict() {
   } else if (prediction[1].probability.toFixed(2) >= 0.9) {
     curStatus = "Squat";
   } else if (prediction[2].probability.toFixed(2) >= 0.9) {
-    if (curStatus == "Squat" || curStatus == "Stand") {
+    if (curStatus == "Stand") {
       var audio = new Audio('/public/my_model/again.mp3');
       audio.play();
     }

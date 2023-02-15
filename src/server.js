@@ -165,15 +165,22 @@ wsServer.on("connection", (socket) => {
     if (curRoom.scoreArrived == 2) {
       var scores = [];
       curRoom.users.forEach((user) => {
-        scores.push({ user_socket: user.socketId, score: user.score });
+        console.log(`${user.socketId} : ${user.count}`)
+        scores.push({ user_socket: user.socketId, score: user.count });
       })
 
       if (scores[0].score > scores[1].score) {
         socket.to(scores[0].user_socket).emit("winner");
+        console.log(scores[0].user_socket)
         socket.to(scores[1].user_socket).emit("loser");
+        console.log(scores[1].user_socket)
+
       } else if (scores[0].score < scores[1].score) {
         socket.to(scores[0].user_socket).emit("loser");
+        console.log(scores[0].user_socket)
         socket.to(scores[1].user_socket).emit("winner");
+        console.log(scores[1].user_socket)
+
       } else {
         wsServer.emit("draw");
       }

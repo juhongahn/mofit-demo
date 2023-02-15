@@ -43,22 +43,21 @@ let pcObj = {
 let isGameTimerStop = false;
 function startTimer() {
   var time = 20; //기준시간 작성
-
-  if (time == 0) {
-    clearInterval(x); //setInterval() 실행을 끝냄
-    handleGameEnd();
-    isGameTimerStop = true;
-  }
-  else if (!isGameTimerStop && time > 0) {
-    const timerBox = document.getElementById("timerBox");
-    const timer = timerBox.querySelector("p");
-    var x = setInterval(function () {
+  const timerBox = document.getElementById("timerBox");
+  const timer = timerBox.querySelector("p");
+  var x = setInterval(function () {
+    if (time > 0 && !isGameTimerStop) {
       min = parseInt(time / 60); //몫을 계산
       sec = time % 60; //나머지를 계산
       time--;
       timer.innerHTML = `${sec}`;
-    }, 1000);
-  }
+    }
+    else if (time <= 0) {
+      clearInterval(x); //setInterval() 실행을 끝냄
+      handleGameEnd();
+      isGameTimerStop = true;
+    }
+  }, 1000);
 }
 
 function handleGameEnd() {

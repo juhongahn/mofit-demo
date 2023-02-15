@@ -70,6 +70,7 @@ function startTimer() {
 function handleGameEnd() {
   socket.emit("game_end", nickname, count);
   var audio = new Audio('gameend.mp3');
+  audio.play();
 }
 
 async function poseDetect() {
@@ -165,6 +166,7 @@ function handleReadyClick(event) {
 socket.on("game_start", () => {
   readyBtn.hidden = true;
   var audio = new Audio('gamestart.mp3');
+  audio.play();
   startTimer();
   poseDetect();
   handleGameStart()
@@ -604,6 +606,7 @@ async function predict() {
       count++;
       var audio = new Audio(count % 10 + '.mp3');
       handleCount(count);
+      audio.play();
     }
     curStatus = "Stand";
   } else if (prediction[1].probability.toFixed(2) >= 0.9) {
@@ -611,6 +614,7 @@ async function predict() {
   } else if (prediction[2].probability.toFixed(2) >= 0.9) {
     if (curStatus == "Squat" || curStatus == "Stand") {
       var audio = new Audio('again.mp3');
+      audio.play();
     }
     curStatus = "Bent";
   }

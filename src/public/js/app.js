@@ -38,7 +38,7 @@ let peopleInRoom = 1;
 let allReady = false;
 let timeCount = document.querySelector("time");
 let pushupCount = 0;
-
+let isPause = false;
 
 let pcObj = {
   // remoteSocketId: pc
@@ -164,13 +164,28 @@ function handleReadyClick(event) {
 
 socket.on("game_start", () => {
   readyBtn.hidden = true;
-  var audio = new Audio('/public/my_model/gamestart.mp3');
-  audio.play();
+  setGameTimer();
+  setTimeout(() => { startGame() }, 3000);
+})
+
+function startGame() {
+  var gameStartAudio = new Audio(`/public/my_model/gamestart.mp3`);
+  gameStartAudio.play();
   startTimer();
   poseDetect();
   handleGameStart()
-})
+}
 
+function setGameTimer() {
+  var timer = 3;
+  let x = setInterval(() => {
+    if (timer == 0) clearInterval(x);
+    var audio = new Audio(`/public/my_model/${timer}.mp3`);
+    audio.play();
+    console.log(timer);
+    timer--;
+  }, 1000);
+}
 function handleGameStart() {
   const userContainers = document.getElementsByClassName('people2');
 

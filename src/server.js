@@ -170,12 +170,12 @@ wsServer.on("connection", (socket) => {
       })
 
       if (scores[0].score > scores[1].score) {
-        socket.to(scores[0].user_socket).emit("winner");
-        socket.to(scores[1].user_socket).emit("loser");
+        wsServer.to(scores[0].user_socket).emit("winner");
+        wsServer.to(scores[1].user_socket).emit("loser");
 
       } else if (scores[0].score < scores[1].score) {
-        socket.to(scores[0].user_socket).emit("loser");
-        socket.to(scores[1].user_socket).emit("winner");
+        wsServer.to(scores[0].user_socket).emit("loser");
+        wsServer.to(scores[1].user_socket).emit("winner");
       } else {
         wsServer.emit("draw");
       }

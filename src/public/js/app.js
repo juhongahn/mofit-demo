@@ -45,7 +45,7 @@ let pcObj = {
 };
 
 function startTimer() {
-  var time = 3; //기준시간 작성
+  var time = 30; //기준시간 작성
   var min = ""; //분
   var sec = ""; //초
   //setInterval(함수, 시간) : 주기적인 실행

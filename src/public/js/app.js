@@ -49,7 +49,7 @@ function startTimer() {
     handleGameEnd();
     isGameTimerStop = true;
   }
-  if (!isGameTimerStop && time > 0) {
+  else if (!isGameTimerStop && time > 0) {
     const timerBox = document.getElementById("timerBox");
     const timer = timerBox.querySelector("p");
     var x = setInterval(function () {

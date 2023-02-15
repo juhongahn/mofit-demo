@@ -45,9 +45,7 @@ let pcObj = {
 };
 
 function startTimer() {
-  var time = 180; //기준시간 작성
-  var min = ""; //분
-  var sec = ""; //초
+  var time = 20; //기준시간 작성
   //setInterval(함수, 시간) : 주기적인 실행
   const timerBox = document.getElementById("timerBox");
   const timer = timerBox.querySelector("p");
@@ -520,20 +518,16 @@ socket.on("leave_room", (leavedSocketId, nickname) => {
 socket.on("winner", () => {
   var audio = new Audio('/public/my_model/winner.mp3');
   audio.play();
-  alert(`이겼어요!`);
-
 })
 
 socket.on("loser", () => {
   var audio = new Audio('/public/my_model/loser.mp3');
   audio.play();
-  alert(`졌어요..`);
 })
 
 socket.on("draw", () => {
   var audio = new Audio('/public/my_model/draw.mp3');
   audio.play();
-  alert(`비겼어요`);
 })
 
 // RTC code

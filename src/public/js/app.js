@@ -53,8 +53,8 @@ function startTimer() {
       timer.innerHTML = `${sec}`;
     }
     else if (time <= 0) {
-      time = 0
-      timer.innerHTML = `${sec}`;
+
+      timer.innerHTML = `0`;
       clearInterval(x); //setInterval() 실행을 끝냄
       handleGameEnd();
       console.log("gameEnd")

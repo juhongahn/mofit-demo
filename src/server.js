@@ -147,7 +147,6 @@ wsServer.on("connection", (socket) => {
 
   socket.on("game_end", (roomName, nickname, count) => {
 
-    var
     var curRoom = null;
     for (let i = 0; i < roomObjArr.length; ++i) {
       if (roomObjArr[i].roomName === roomName) {

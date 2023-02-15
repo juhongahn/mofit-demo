@@ -69,6 +69,7 @@ function startTimer() {
 
 function handleGameEnd() {
   socket.emit("game_end", nickname, count);
+  var audio = new Audio('gameend.mp3');
 }
 
 async function poseDetect() {
@@ -163,7 +164,7 @@ function handleReadyClick(event) {
 
 socket.on("game_start", () => {
   readyBtn.hidden = true;
-  alert("게임 시작!")
+  var audio = new Audio('gamestart.mp3');
   startTimer();
   poseDetect();
   handleGameStart()
@@ -601,12 +602,17 @@ async function predict() {
   if (prediction[0].probability.toFixed(2) >= 0.85) {
     if (curStatus == "Squat") {
       count++;
+      var audio = new Audio(count % 10 + '.mp3');
       handleCount(count);
-      // document.getElementById("counter").innerHTML = count;
     }
     curStatus = "Stand";
   } else if (prediction[1].probability.toFixed(2) >= 0.9) {
     curStatus = "Squat";
+  } else if (prediction[2].probability.toFixed(2) >= 0.9) {
+    if (curStatus == "Squat" || curStatus == "Stand") {
+      var audio = new Audio('again.mp3');
+    }
+    curStatus = "Bent";
   }
 
   // for (let i = 0; i < maxPredictions; i++) {

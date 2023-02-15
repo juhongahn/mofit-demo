@@ -40,7 +40,7 @@ const MAXIMUM = 5;
 wsServer.on("connection", (socket) => {
   let myRoomName = null;
   let myNickname = null;
-
+  let userCountArray = [];
   socket.on("join_room", (roomName, nickname) => {
     myRoomName = roomName;
     myNickname = nickname;
@@ -140,7 +140,25 @@ wsServer.on("connection", (socket) => {
   });
 
   socket.on("game_start", (roomName) => {
-    socket.emit("game_start");
+    wsServer.emit("game_start");
+  })
+
+  socket.on("game_end", (nickname, count) => {
+    if (userCountArray.length > 0) {
+      const [otherName, otherCount] = userCountArray.pop();
+      if (otherCount > count) {
+        wsServer.emit("winner", otherName);
+      } else {
+        wsServer.emit("winner", nickname);
+      }
+
+    }
+    userCountArray.push({ nickname: nickname, count: count });
+    console.log(`${nickname} ${count}`);
+  })
+
+  socket.on("count_up", (count, roomName) => {
+    socket.to(roomName).emit("count_up", count);
   })
 
   socket.on("offer", (offer, remoteSocketId, localNickname) => {

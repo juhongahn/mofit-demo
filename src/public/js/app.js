@@ -39,12 +39,13 @@ let allReady = false;
 let timeCount = document.querySelector("time");
 let pushupCount = 0;
 
+
 let pcObj = {
   // remoteSocketId: pc
 };
 
 function startTimer() {
-  var time = 60; //기준시간 작성
+  var time = 3; //기준시간 작성
   var min = ""; //분
   var sec = ""; //초
   //setInterval(함수, 시간) : 주기적인 실행
@@ -55,7 +56,7 @@ function startTimer() {
     min = parseInt(time / 60); //몫을 계산
     sec = time % 60; //나머지를 계산
     time--;
-    timer.innerHTML = `${min}:${sec}`;
+    timer.innerHTML = `${sec}`;
     //타임아웃 시
     if (time < 0) {
       clearInterval(x); //setInterval() 실행을 끝냄
@@ -67,7 +68,7 @@ function startTimer() {
 }
 
 function handleGameEnd() {
-
+  socket.emit("game_end", nickname, count);
 }
 
 async function poseDetect() {
@@ -161,24 +162,39 @@ function handleReadyClick(event) {
 };
 
 socket.on("game_start", () => {
+  readyBtn.hidden = true;
   alert("게임 시작!")
-  console.log("게임 시작!")
   startTimer();
   poseDetect();
+  handleGameStart()
 })
 
 function handleGameStart() {
+  const userContainers = document.getElementsByClassName('people2');
 
+  const hostCounterBox = document.createElement("h3");
+  hostCounterBox.innerText = 0;
+  hostCounterBox.setAttribute("class", "counter");
+  userContainers[0].appendChild(hostCounterBox);
+
+  const guestCounterBox = document.createElement("h3");
+  guestCounterBox.innerText = 0;
+  guestCounterBox.setAttribute("class", "counter");
+  userContainers[1].appendChild(guestCounterBox);
 }
 
-function handleCount() {
-  const nicknameContainer = document.querySelector("#userNickname");
-  nicknameContainer.innerText = nickname + ' ' + String(count);
-
-  message = count;
-  socket.emit("chat", `${nickname}: ${message}`, roomName);
-  writeChat(`You: ${message}`, MYCHAT_CN);
+function handleCount(count) {
+  const userContainers = document.getElementsByClassName('counter');
+  console.log(count)
+  userContainers[0].innerText = count;
+  socket.emit("count_up", count, roomName);
 }
+
+socket.on("count_up", (count) => {
+  console.log(count)
+  const userContainers = document.getElementsByClassName('counter');
+  userContainers[1].innerText = count;
+})
 
 function handleMuteClick() {
   myStream //
@@ -484,6 +500,11 @@ socket.on("leave_room", (leavedSocketId, nickname) => {
   sortStreams();
 });
 
+socket.on("winner", (ninckName) => {
+  console.log(ninckName);
+  alert(`승자:ninckName `);
+})
+
 // RTC code
 
 function createConnection(remoteSocketId, remoteNickname) {
@@ -561,16 +582,17 @@ function sortStreams() {
 // var status = "Stand";
 // var count = 0;
 
-async function loop(timestamp) {
-  //webcam.update(); // update the webcam frame
-  //await predict();
-  //window.requestAnimationFrame(loop);
-}
+// async function loop(timestamp) {
+//   webcam.update(); // update the webcam frame
+//   await predict();
+//   window.requestAnimationFrame(loop);
+// }
 
-var count = 0;
-var curStatus = "stand";
+let count = 0;
+let curStatus = "stand";
 
 async function predict() {
+  console.log("called")
   // Prediction #1: run input through posenet
   // estimatePose can take in an image, video or canvas html element
   const { pose, posenetOutput } = await model.estimatePose(myFace);
@@ -579,7 +601,7 @@ async function predict() {
   if (prediction[0].probability.toFixed(2) >= 0.85) {
     if (curStatus == "Squat") {
       count++;
-      handleCount();
+      handleCount(count);
       // document.getElementById("counter").innerHTML = count;
     }
     curStatus = "Stand";

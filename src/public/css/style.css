@@ -469,3 +469,10 @@ main {
 .hidden {
   display: none;
 }
+
+.counter {
+  margin-top: 10px;
+  text-align: center;
+  color: white;
+  font-size: 16px;
+}

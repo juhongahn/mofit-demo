@@ -630,65 +630,16 @@ async function predict() {
   const { pose, posenetOutput } = await model.estimatePose(myFace);
   // Prediction 2: run input through teachable machine classification model
   const prediction = await model.predict(posenetOutput);
-  // if (prediction[0].probability.toFixed(2) >= 0.85) {
-  //   if (curStatus == "Squat") {
-  //     count++;
-  //     var audio = new Audio('/public/my_model/' + count % 10 + '.mp3');
-  //     handleCount(count);
-  //     audio.play();
-  //   }
-  //   curStatus = "Stand";
-  // } else if (prediction[1].probability.toFixed(2) >= 0.9) {
-  //   curStatus = "Squat";
-  // } else if (prediction[2].probability.toFixed(2) == 1.0) {
-  //   if (curStatus == "Stand") {
-  //     var audio = new Audio('/public/my_model/again.mp3');
-  //     audio.play();
-  //   }
-  //   curStatus = "Bent";
-  // }
-
-
-  if (prediction[0].probability.toFixed(2) >= 0.85) { // 현재 Stand
-    if (curStatus == "Stand") {
-      // 변화 없음
-    }
-    else if (curStatus == "Bent" && bst == "Stand") { // stand -> bent -> stand
-      // 다시해
-      bst = "Bent";
-      curStatus = "Stand";
-      console.log("다시해");
-    }
-    else { // bent 미인식?
-      // count + 1
-      curStatus = "Stand";
-      bst = "Bent";
-
+  if (prediction[0].probability.toFixed(2) >= 0.85) {
+    if (curStatus == "Squat") {
       count++;
       var audio = new Audio('/public/my_model/' + count % 10 + '.mp3');
       handleCount(count);
-      // audio.play();
+      audio.play();
     }
-  }
-  else if (prediction[1].probability.toFixed(2) >= 0.9) { // 현재 Squat
-    if (curStatus == "Squat") {
-      // 변화 없음
-    }
-    else if (curStatus == "Bent" && bst == "Squat") {  // squat -> bent -> squat
-      // 다시해
-      console.log("다시해");
-      bst = "Bent";
-      curStatus = "Sqrat"
-    }
-  }
-  else if (prediction[2].probability.toFixed(2) == 1.0) { // 현재 Bent
-    if (curStatus != "Bent") {
-      bst = curStatus;
-      curStatus = "Bent";
-    }
-    else {
-      // 변화 없음
-    }
+    curStatus = "Stand";
+  } else if (prediction[1].probability.toFixed(2) >= 0.9) {
+    curStatus = "Squat";
   }
 
   // for (let i = 0; i < maxPredictions; i++) {

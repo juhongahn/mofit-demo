@@ -522,20 +522,27 @@ socket.on("leave_room", (leavedSocketId, nickname) => {
 });
 
 socket.on("winner", () => {
-  var audio = new Audio('/public/my_model/winner.mp3');
-  console.log("winner")
-  audio.play();
+  setTimeout(() => {
+    var audio = new Audio('/public/my_model/winner.mp3');
+    console.log("winner")
+    audio.play();
+  }, "2000")
+
 })
 
 socket.on("loser", () => {
-  var audio = new Audio('/public/my_model/loser.mp3');
-  console.log("loser")
-  audio.play();
+  setTimeout(() => {
+    var audio = new Audio('/public/my_model/loser.mp3');
+    console.log("loser")
+    audio.play();
+  }, "2000")
 })
 
 socket.on("draw", () => {
-  var audio = new Audio('/public/my_model/draw.mp3');
-  audio.play();
+  setTimeout(() => {
+    var audio = new Audio('/public/my_model/draw.mp3');
+    audio.play();
+  }, "2000")
 })
 
 // RTC code

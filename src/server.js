@@ -69,6 +69,7 @@ wsServer.on("connection", (socket) => {
         roomName,
         currentNum: 0,
         users: [],
+        scoreArrived: 0,
       };
       isHost = true;
       roomObjArr.push(targetRoomObj);
@@ -80,6 +81,7 @@ wsServer.on("connection", (socket) => {
       nickname,
       isReady: false,
       isHost: isHost,
+      count: 0,
     });
     ++targetRoomObj.currentNum;
 
@@ -143,18 +145,40 @@ wsServer.on("connection", (socket) => {
     wsServer.emit("game_start");
   })
 
-  socket.on("game_end", (nickname, count) => {
-    if (userCountArray.length > 0) {
-      const [otherName, otherCount] = userCountArray.pop();
-      if (otherCount > count) {
-        wsServer.emit("winner", otherName);
-      } else {
-        wsServer.emit("winner", nickname);
-      }
+  socket.on("game_end", (roomName, nickname, count) => {
 
+    var
+    var curRoom = null;
+    for (let i = 0; i < roomObjArr.length; ++i) {
+      if (roomObjArr[i].roomName === roomName) {
+        curRoom = roomObjArr[i];
+        break;
+      }
     }
-    userCountArray.push({ nickname: nickname, count: count });
-    console.log(`${nickname} ${count}`);
+
+    curRoom.users.forEach((user) => {
+      if (user.nickname === nickname) {
+        user.count = count;
+        curRoom.scoreArrived++;
+      }
+    })
+
+    if (curRoom.scoreArrived == 2) {
+      var scores = [];
+      curRoom.users.forEach((user) => {
+        scores.push({ user_socket: user.socketId, score: user.score });
+      })
+
+      if (scores[0].score > scores[1].score) {
+        socket.to(scores[0].user_socket).emit("winner");
+        socket.to(scores[1].user_socket).emit("loser");
+      } else if (scores[0].score < scores[1].score) {
+        socket.to(scores[0].user_socket).emit("loser");
+        socket.to(scores[1].user_socket).emit("winner");
+      } else {
+        wsServer.emit("draw");
+      }
+    }
   })
 
   socket.on("count_up", (count, roomName) => {

@@ -61,15 +61,14 @@ function startTimer() {
     if (time < 0) {
       clearInterval(x); //setInterval() 실행을 끝냄
       //document.getElementById("time").innerHTML = "GAME END";
-      alert("GAME END");
       handleGameEnd();
     }
   }, 1000);
 }
 
 function handleGameEnd() {
-  socket.emit("game_end", nickname, count);
-  var audio = new Audio('gameend.mp3');
+  socket.emit("game_end", roomName, nickname, count);
+  var audio = new Audio('/public/my_model/gameend.mp3');
   audio.play();
 }
 
@@ -165,7 +164,7 @@ function handleReadyClick(event) {
 
 socket.on("game_start", () => {
   readyBtn.hidden = true;
-  var audio = new Audio('gamestart.mp3');
+  var audio = new Audio('/public/my_model/gamestart.mp3');
   audio.play();
   startTimer();
   poseDetect();
@@ -503,9 +502,20 @@ socket.on("leave_room", (leavedSocketId, nickname) => {
   sortStreams();
 });
 
-socket.on("winner", (ninckName) => {
-  console.log(ninckName);
-  alert(`승자:ninckName `);
+socket.on("winner", () => {
+  var audio = new Audio('/public/my_model/winner.mp3');
+  alert(`이겼어요!`);
+
+})
+
+socket.on("loser", () => {
+  var audio = new Audio('/public/my_model/loser.mp3');
+  alert(`졌어요..`);
+})
+
+socket.on("draw", () => {
+  var audio = new Audio('/public/my_model/draw.mp3');
+  alert(`비겼어요`);
 })
 
 // RTC code
@@ -595,7 +605,6 @@ let count = 0;
 let curStatus = "stand";
 
 async function predict() {
-  console.log("called")
   // Prediction #1: run input through posenet
   // estimatePose can take in an image, video or canvas html element
   const { pose, posenetOutput } = await model.estimatePose(myFace);
@@ -604,7 +613,7 @@ async function predict() {
   if (prediction[0].probability.toFixed(2) >= 0.85) {
     if (curStatus == "Squat") {
       count++;
-      var audio = new Audio(count % 10 + '.mp3');
+      var audio = new Audio('/public/my_model/' + count % 10 + '.mp3');
       handleCount(count);
       audio.play();
     }
@@ -613,7 +622,7 @@ async function predict() {
     curStatus = "Squat";
   } else if (prediction[2].probability.toFixed(2) >= 0.9) {
     if (curStatus == "Squat" || curStatus == "Stand") {
-      var audio = new Audio('again.mp3');
+      var audio = new Audio('/public/my_model/again.mp3');
       audio.play();
     }
     curStatus = "Bent";
@@ -642,8 +651,8 @@ function unableReadyButton() {
 
 /*
 function handleConnectionStateChange(event) {
-  console.log(`${pcObjArr.length - 1} CS: ${event.target.connectionState}`);
-  console.log(`${pcObjArr.length - 1} ICS: ${event.target.iceConnectionState}`);
+  console.log(`${ pcObjArr.length - 1 } CS: ${ event.target.connectionState }`);
+  console.log(`${ pcObjArr.length - 1 } ICS: ${ event.target.iceConnectionState }`);
 
   if (event.target.iceConnectionState === "disconnected") {
   }

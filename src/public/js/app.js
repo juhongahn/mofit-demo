@@ -15,18 +15,15 @@ const cameraBtn = document.querySelector("#camera");
 const cameraIcon = cameraBtn.querySelector(".cameraIcon");
 const unCameraIcon = cameraBtn.querySelector(".unCameraIcon");
 const camerasSelect = document.querySelector("#cameras");
-
 const call = document.querySelector("#call");
 const welcome = document.querySelector("#welcome");
-
 const countText = document.querySelector("pushCount");
-
 const HIDDEN_CN = "hidden";
 
 let model, webcam, ctx, labelContainer, maxPredictions;
 
 // const video = document.createElement("video");
-
+let animationId;
 let myStream;
 let muted = true;
 unMuteIcon.classList.add(HIDDEN_CN);
@@ -43,31 +40,31 @@ let isPause = false;
 let pcObj = {
   // remoteSocketId: pc
 };
-
+let isGameTimerStop = false;
 function startTimer() {
-  var time = 20; //기준시간 작성
-  //setInterval(함수, 시간) : 주기적인 실행
-  const timerBox = document.getElementById("timerBox");
-  const timer = timerBox.querySelector("p");
-  var x = setInterval(function () {
-    //parseInt() : 정수를 반환
-    min = parseInt(time / 60); //몫을 계산
-    sec = time % 60; //나머지를 계산
-    time--;
-    timer.innerHTML = `${sec}`;
-    //타임아웃 시
-    if (time < 0) {
-      clearInterval(x); //setInterval() 실행을 끝냄
-      //document.getElementById("time").innerHTML = "GAME END";
-      handleGameEnd();
-    }
-  }, 1000);
+  if (time == 0) {
+    clearInterval(x); //setInterval() 실행을 끝냄
+    handleGameEnd();
+    isGameTimerStop = true;
+  }
+  if (!isGameTimerStop && time > 0) {
+    const timerBox = document.getElementById("timerBox");
+    const timer = timerBox.querySelector("p");
+    var time = 20; //기준시간 작성
+    var x = setInterval(function () {
+      min = parseInt(time / 60); //몫을 계산
+      sec = time % 60; //나머지를 계산
+      time--;
+      timer.innerHTML = `${sec}`;
+    }, 1000);
+  }
 }
 
 function handleGameEnd() {
   socket.emit("game_end", roomName, nickname, count);
   var audio = new Audio('/public/my_model/gameend.mp3');
   audio.play();
+  window.cancelAnimationFrame(animationId);
 }
 
 async function poseDetect() {
@@ -78,7 +75,7 @@ async function poseDetect() {
   // 모델 초기화
   model = await tmPose.load(modelURL, metadataURL);
   maxPredictions = model.getTotalClasses();
-  window.requestAnimationFrame(loop);
+  animationId = window.requestAnimationFrame(loop);
 }
 
 async function getCameras() {
@@ -163,7 +160,6 @@ function handleReadyClick(event) {
 socket.on("game_start", () => {
   readyBtn.hidden = true;
   setGameTimer();
-  setTimeout(() => { startGame() }, 3000);
 })
 
 function startGame() {
@@ -171,17 +167,24 @@ function startGame() {
   gameStartAudio.play();
   startTimer();
   poseDetect();
-  handleGameStart()
+  handleGameStart();
 }
+let isStop = false;
 
 function setGameTimer() {
+
   var timer = 3;
   let x = setInterval(() => {
-    if (timer == 0) clearInterval(x);
-    var audio = new Audio(`/public/my_model/${timer}.mp3`);
-    audio.play();
-    console.log(timer);
-    timer--;
+    if (timer == 0) {
+      clearInterval(x);
+      isStop = true;
+      startGame();
+    } else if (timer > 0 && !isStop) {
+      var audio = new Audio(`/public/my_model/${timer}.mp3`);
+      audio.play();
+      console.log(timer);
+      timer--;
+    }
   }, 1000);
 }
 function handleGameStart() {

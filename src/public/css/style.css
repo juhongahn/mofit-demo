@@ -4,7 +4,7 @@
   --black-color: #212121;
 
   --header-background-color: #102027;
-  --main-background-color: #546e7a;
+  /* --main-background-color: #546e7a; */
   --chatBox-background-color: #37474f;
   --controler-background-color: #29434e;
 
@@ -29,7 +29,7 @@ header {
   width: 100%;
   height: 7vh;
 
-  color: wheat;
+  color: white;
   background-color: var(--header-background-color);
 
   display: flex;
@@ -80,7 +80,7 @@ main {
   padding: 3px 10px;
   margin-bottom: 30px;
 
-  color: whitesmoke;
+  /* color: whitesmoke; */
   background: none;
   border: none;
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
@@ -90,7 +90,7 @@ main {
 }
 
 #welcome input::placeholder {
-  color: whitesmoke;
+  /* color: whitesmoke; */
 }
 
 #welcome input:focus {
@@ -103,7 +103,7 @@ main {
   height: 10%;
   margin-top: 10px;
 
-  color: whitesmoke;
+  /* color: whitesmoke; */
   background: none;
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 5px;
@@ -182,7 +182,7 @@ main {
   margin-top: 5px;
 
   text-align: center;
-  color: whitesmoke;
+  /* color: whitesmoke; */
   font-size: 18px;
   font-weight: 500;
   letter-spacing: 1px;
@@ -358,7 +358,8 @@ main {
 
   width: 100%;
   height: 50px;
-  background-color: #62727b;
+  /* background-color: #62727b; */
+  background-color: #009c65;
 }
 
 #chatRoom #chatForm input {

@@ -550,6 +550,9 @@ socket.on("draw", () => {
   setTimeout(() => {
     var audio = new Audio('/public/my_model/draw.mp3');
     audio.play();
+    setTimeout(() => {
+      leaveRoom()
+    }, "1000")
   }, "2000")
 })
 

@@ -527,10 +527,11 @@ socket.on("winner", () => {
     var audio = new Audio('/public/my_model/winner.mp3');
     console.log("winner")
     audio.play();
+    setTimeout(() => {
+      leaveRoom()
+    }, "1000")
   }, "2000");
-  setTimeout(() => {
-    leaveRoom()
-  }, "1000")
+
 })
 
 socket.on("loser", () => {
@@ -538,10 +539,11 @@ socket.on("loser", () => {
     var audio = new Audio('/public/my_model/loser.mp3');
     console.log("loser")
     audio.play();
+    setTimeout(() => {
+      leaveRoom()
+    }, "1000")
   }, "2000");
-  setTimeout(() => {
-    leaveRoom()
-  }, "1000")
+
 })
 
 socket.on("draw", () => {

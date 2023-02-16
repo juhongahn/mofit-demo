@@ -42,7 +42,7 @@ let pcObj = {
 };
 let isGameTimerStop = false;
 function startTimer() {
-  var time = 20; //기준시간 작성
+  var time = 40; //기준시간 작성
   const timerBox = document.getElementById("timerBox");
   const timer = timerBox.querySelector("p");
   var x = setInterval(function () {
@@ -68,6 +68,7 @@ function handleGameEnd() {
   var audio = new Audio('/public/my_model/gameend.mp3');
   audio.play();
   window.cancelAnimationFrame(animationId);
+
 }
 
 async function poseDetect() {
@@ -526,8 +527,10 @@ socket.on("winner", () => {
     var audio = new Audio('/public/my_model/winner.mp3');
     console.log("winner")
     audio.play();
-  }, "2000")
-
+  }, "2000");
+  setTimeout(() => {
+    leaveRoom()
+  }, "1000")
 })
 
 socket.on("loser", () => {
@@ -535,7 +538,10 @@ socket.on("loser", () => {
     var audio = new Audio('/public/my_model/loser.mp3');
     console.log("loser")
     audio.play();
-  }, "2000")
+  }, "2000");
+  setTimeout(() => {
+    leaveRoom()
+  }, "1000")
 })
 
 socket.on("draw", () => {

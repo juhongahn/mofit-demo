@@ -42,7 +42,7 @@ let pcObj = {
 };
 let isGameTimerStop = false;
 function startTimer() {
-  var time = 40; //기준시간 작성
+  var time = 30; //기준시간 작성
   const timerBox = document.getElementById("timerBox");
   const timer = timerBox.querySelector("p");
   var x = setInterval(function () {
